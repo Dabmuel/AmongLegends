@@ -21,12 +21,26 @@ class PartyService extends IdentifierService {
         
         $party->code = $this->newToken();
         $party->active = true;
-        //$party->dyingDate = new DateTime();
-        //$party->dyingDate->add(DateInterval::createFromDateString('1 day'));
+        $party->dyingDate = new DateTime();
+        $party->dyingDate->add(DateInterval::createFromDateString('1 day'));
 
         $this->DAO->create($party);
 
         return $party;
+    }
+
+    private function isActive($party) {
+        if ($party && $party->active) {
+            if ($party->dyingDate) {
+                return true;
+            } else {
+                $party->active = false;
+                $this->update($party);
+                return false;
+            }
+        } else {
+            return false;
+        }
     }
 
     private function newToken() {

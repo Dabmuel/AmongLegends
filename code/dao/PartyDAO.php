@@ -16,7 +16,7 @@ class PartyDAO extends IdentifierDAO {
             );
             $sql->bindParam('active', $partyDTO->active, PDO::PARAM_BOOL);
             $sql->bindParam('code', $partyDTO->code);
-            $sql->bindParam('dyingDate', $partyDTO->dyingDate);
+            $sql->bindParam('dyingDate', $partyDTO->dyingDate->format('Y-m-d H:i:s'));
             $sql->bindParam('activeGameId', $partyDTO->activeGameId);
             $sql->execute();
             $partyDTO->identifier = $this->db->lastInsertId();
@@ -39,7 +39,7 @@ class PartyDAO extends IdentifierDAO {
             $sql->execute([
                 'active' => $partyDTO->active,
                 'code' => $partyDTO->code,
-                'dyingDate' => $partyDTO->dyingDate,
+                'dyingDate' => $partyDTO->dyingDate->format('Y-m-d H:i:s'),
                 'activeGameId' => $partyDTO->activeGameId,
                 'id' => $partyDTO->identifier
             ]);
@@ -55,7 +55,7 @@ class PartyDAO extends IdentifierDAO {
         $partyDTO->identifier = $data['ID'];
         $partyDTO->active = $data['ACTIVE'];
         $partyDTO->code = $data['CODE'];
-        $partyDTO->dyingDate = $data['DYING_DATE'];
+        $partyDTO->dyingDate = $data['DYING_DATE'] ? DateTime::createFromFormat('Y-m-d H:i:s', $data['DYING_DATE']) : null;
         $partyDTO->activeGameId = $data['ACTIVE_GAME_ID'];
 
         return $partyDTO;
