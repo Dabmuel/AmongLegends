@@ -2,7 +2,7 @@
 
 class PartyDTO extends IdentifierDTO {
 
-    public $code;
+    public string $code;
 
     public $active;
 
