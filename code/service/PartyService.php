@@ -10,7 +10,7 @@ class PartyService extends IdentifierService {
 
     public function getPartyActiveByCode($code) {
         $party = $this->DAO->getByCode($code);
-        if ($party and $party->active) {
+        if ($this->isActive($party)) {
             return $party;
         }
         return null;
@@ -30,14 +30,8 @@ class PartyService extends IdentifierService {
     }
 
     private function isActive($party) {
-        if ($party && $party->active) {
-            if ($party->dyingDate) {
-                return true;
-            } else {
-                $party->active = false;
-                $this->update($party);
-                return false;
-            }
+        if ($party && $party->dyingDate->diff(new DateTime())->invert == 1) {
+            return true;
         } else {
             return false;
         }
