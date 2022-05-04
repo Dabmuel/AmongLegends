@@ -8,6 +8,21 @@ class PartyService extends IdentifierService {
         $this->DAO = SingletonRegistry::$registry["PartyDAO"];
     }
 
+    public function update($DTO) {
+        $DTO->dyingDate = new DateTime();
+        $DTO->dyingDate->add(DateInterval::createFromDateString('1 day'));
+
+        return $this->DAO->update($DTO);
+    }
+
+    public function get($identifier) {
+        $party = $this->DAO->get($identifier);
+        if ($this->isActive($party)) {
+            return $party;
+        }
+        return null;
+    }
+
     public function getPartyActiveByCode($code) {
         $party = $this->DAO->getByCode($code);
         if ($this->isActive($party)) {
