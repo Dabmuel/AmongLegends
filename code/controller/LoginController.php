@@ -61,12 +61,18 @@ class LoginController extends Controller {
         return $valid;
     }
 
-    private function getErrorMessage($errorCode) {
+    private function errorMessage($errorCode) {
         switch($errorCode) {
+            case("NO_PARTY"):
+                $this->errorMessage = "Erreur: Le salon a expiré.";
+                break;
+            case("NO_SESSION"):
+                $this->errorMessage = "Erreur: Vous n'êtes pas connecté à un salon.";
+                break;
             case(""):
                 break;
             default:
-                $this->errorMessage = 'Erreur quelconque. Je ne sais pas si tu avais remarqué mais il y a différents types de profs.';
+                $this->errorMessage = "Erreur quelconque. Je ne sais pas si tu avais remarqué mais il y a différents types de profs.";
                 break;
         }
     }

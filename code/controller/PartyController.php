@@ -2,21 +2,19 @@
 
 class PartyController extends Controller{
 
-    private $partyService;
-    private $sessionManager;
+    private SessionManager $sessionManager;
 
     function __construct() {
         parent::__construct();
 
-        $this->partyService = SingletonRegistry::$registry["PartyService"];
         $this->sessionManager = SingletonRegistry::$registry['SessionManager'];
     }
 
     public function process() {
-        if ($this->sessionManager->currentSessionDTO) {
+        if ($this->sessionManager->currentSessionDTO && !$this->sessionManager->errorCode) {
             $this->front();
         } else {
-            header("Location: ".Config::$baseUrl."/login");
+            header("Location: ".Config::$baseUrl."/login?error=".$this->sessionManager->errorCode);
         }
 
     }

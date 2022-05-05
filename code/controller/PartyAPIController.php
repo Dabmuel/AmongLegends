@@ -28,49 +28,56 @@ class PartyAPIController extends Controller {
         if($currentSessionDTO){
             $currentPartyDTO = $this->partyService->get($currentSessionDTO->partyId);
 
-            $currentGameDTO = null;
+            if($currentPartyDTO) {
 
-            if ($currentPartyDTO->activeGameId) {
-                $currentGameDTO = $this->gameService->get($currentPartyDTO->activeGameId);
-            }
+                $currentGameDTO = null;
 
-            $partyWorkflowDTO = new PartyWorkflowDTO();
-
-            if(!$currentGameDTO) {
-                $partyWorkflowDTO->state = $this->partyStatutEnum[0];//Lobby
-                $partyWorkflowDTO->data = $this->getPartyLobbyDTO($currentPartyDTO);
-            } elseif($currentGameDTO->statut === $this->partyStatutEnum[1]) { //InGame
-                $partyWorkflowDTO->state = $this->partyStatutEnum[1];
-                if($_GET['maxiData']) {
-                    $partyWorkflowDTO->data = $this->getGameInGameDTO($currentSessionDTO, $currentGameDTO);
+                if ($currentPartyDTO->activeGameId) {
+                    $currentGameDTO = $this->gameService->get($currentPartyDTO->activeGameId);
                 }
-            } elseif($currentGameDTO->statut === $this->partyStatutEnum[2]) { //EndStat
-                $partyWorkflowDTO->state = $this->partyStatutEnum[2];
-                if($_GET['maxiData'] && $currentSessionDTO->admin) {
-                    $partyWorkflowDTO->data = $this->getGameEndStatDTO($currentGameDTO);
-                }
-            } elseif($currentGameDTO->statut === $this->partyStatutEnum[3]) { //Voting
-                $currentGameSessionDTO = $this->gameSessionService->getBySessionAndGame($currentSessionDTO->identifier, $currentGameDTO->identifier);
-                $endVotes = $this->endVoteService->getAllByVotingGS($currentGameSessionDTO->identifier);
 
-                if (count($endVotes) < 4) { //-> Voting
-                    $partyWorkflowDTO->state = $this->partyStatutEnum[3];
+                $partyWorkflowDTO = new PartyWorkflowDTO();
+
+                if(!$currentGameDTO) {
+                    $partyWorkflowDTO->state = $this->partyStatutEnum[0];//Lobby
+                    $partyWorkflowDTO->data = $this->getPartyLobbyDTO($currentPartyDTO);
+                } elseif($currentGameDTO->statut === $this->partyStatutEnum[1]) { //InGame
+                    $partyWorkflowDTO->state = $this->partyStatutEnum[1];
                     if($_GET['maxiData']) {
-                        $partyWorkflowDTO->data = $this->getGameVotingDTO($currentGameSessionDTO, $currentGameDTO);
+                        $partyWorkflowDTO->data = $this->getGameInGameDTO($currentSessionDTO, $currentGameDTO);
                     }
-                } else { //-> Voted
-                    $partyWorkflowDTO->state = 'Voted';
-                    $partyWorkflowDTO->data = $this->getGameVotedDTO($currentGameDTO);
+                } elseif($currentGameDTO->statut === $this->partyStatutEnum[2]) { //EndStat
+                    $partyWorkflowDTO->state = $this->partyStatutEnum[2];
+                    if($_GET['maxiData'] && $currentSessionDTO->admin) {
+                        $partyWorkflowDTO->data = $this->getGameEndStatDTO($currentGameDTO);
+                    }
+                } elseif($currentGameDTO->statut === $this->partyStatutEnum[3]) { //Voting
+                    $currentGameSessionDTO = $this->gameSessionService->getBySessionAndGame($currentSessionDTO->identifier, $currentGameDTO->identifier);
+                    $endVotes = $this->endVoteService->getAllByVotingGS($currentGameSessionDTO->identifier);
+
+                    if (count($endVotes) < 4) { //-> Voting
+                        $partyWorkflowDTO->state = $this->partyStatutEnum[3];
+                        if($_GET['maxiData']) {
+                            $partyWorkflowDTO->data = $this->getGameVotingDTO($currentGameSessionDTO, $currentGameDTO);
+                        }
+                    } else { //-> Voted
+                        $partyWorkflowDTO->state = 'Voted';
+                        $partyWorkflowDTO->data = $this->getGameVotedDTO($currentGameDTO);
+                    }
+                } elseif($currentGameDTO->statut === $this->partyStatutEnum[4]) { //EndGame
+                    $partyWorkflowDTO->state = $this->partyStatutEnum[4];
+                    if($_GET['maxiData']) {
+                        $partyWorkflowDTO->data = $this->getGameEndGameDTO($currentGameDTO);
+                    }
                 }
-            } elseif($currentGameDTO->statut === $this->partyStatutEnum[4]) { //EndGame
-                $partyWorkflowDTO->state = $this->partyStatutEnum[4];
-                if($_GET['maxiData']) {
-                    $partyWorkflowDTO->data = $this->getGameEndGameDTO($currentGameDTO);
-                }
+
+                $this->json($partyWorkflowDTO);
+
+            } else {
+
+                $this->error("NO_PARTY");
+
             }
-
-            $this->json($partyWorkflowDTO);
-
         } elseif ($_SESSION['token']) {
 
             $this->error("NO_ACTIVE_SESSION");
@@ -199,6 +206,10 @@ class PartyAPIController extends Controller {
 
     private function error($error_code) {
         switch($error_code) {
+            case("NO_PARTY"):
+                header('HTTP/1.0 403 Forbidden');
+                echo 'Salon expiré';
+                break;
             case("NO_SESSION"):
                 header('HTTP/1.0 401 Unauthorized');
                 echo 'Aucune session trouvée';

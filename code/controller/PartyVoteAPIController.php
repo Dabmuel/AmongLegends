@@ -33,93 +33,101 @@ class PartyVoteAPIController extends Controller {
         if($currentSessionDTO){
             $currentPartyDTO = $this->partyService->get($currentSessionDTO->partyId);
 
-            $currentGameDTO = null;
+            if($currentPartyDTO) {
 
-            if ($currentPartyDTO->activeGameId) {
-                $currentGameDTO = $this->gameService->get($currentPartyDTO->activeGameId);
-            }
-            if ($currentGameDTO == null
-                || $currentGameDTO->statut !== SingletonRegistry::$registry['PartyStatut']->partyStatutEnum[3])//Voting
+                $currentGameDTO = null;
+
+                if ($currentPartyDTO->activeGameId) {
+                    $currentGameDTO = $this->gameService->get($currentPartyDTO->activeGameId);
+                }
+                if ($currentGameDTO == null
+                    || $currentGameDTO->statut !== SingletonRegistry::$registry['PartyStatut']->partyStatutEnum[3])//Voting
                 {
-                $this->error('', 'Party sous le mauvais statut.');
-                return;
-            }
-            $currentGameSessionDTO = $this->gameSessionService->getBySessionAndGame($currentSessionDTO->identifier, $currentGameDTO->identifier);
-            if ($currentGameSessionDTO == null) {
-                $this->error('', 'Session de jeu introuvable. Qu\'est ce que t\'as foutu ?');
-                return;
-            }
-            if (count($this->endVoteService->getAllByVotingGS($currentGameSessionDTO->identifier)) >= 4) {
-                $this->ok();//Déjà voté
-                return;
-            }
+                    $this->error('', 'Party sous le mauvais statut.');
+                    return;
+                }
+                $currentGameSessionDTO = $this->gameSessionService->getBySessionAndGame($currentSessionDTO->identifier, $currentGameDTO->identifier);
+                if ($currentGameSessionDTO == null) {
+                    $this->error('', 'Session de jeu introuvable. Qu\'est ce que t\'as foutu ?');
+                    return;
+                }
+                if (count($this->endVoteService->getAllByVotingGS($currentGameSessionDTO->identifier)) >= 4) {
+                    $this->ok();//Déjà voté
+                    return;
+                }
 
-            $voteIndex = 1;
-            $voteList = [];
-            $endVoteDTOList = [];
-            while ($_POST['vote-'.$voteIndex]) {
-                try {
-                    $vote = json_decode($_POST['vote-'.$voteIndex]);
-                    if ($vote == null) {
+                $voteIndex = 1;
+                $voteList = [];
+                $endVoteDTOList = [];
+                while ($_POST['vote-'.$voteIndex]) {
+                    try {
+                        $vote = json_decode($_POST['vote-'.$voteIndex]);
+                        if ($vote == null) {
+                            $this->error('', 'JSON parsing des votes a échoué.');
+                            return;
+                        }
+                        $voteList[] = $vote;
+                    } catch (Exception $e) {
                         $this->error('', 'JSON parsing des votes a échoué.');
                         return;
                     }
-                    $voteList[] = $vote;
-                } catch (Exception $e) {
-                    $this->error('', 'JSON parsing des votes a échoué.');
+                    $voteIndex++;
+                }
+                if (count($voteList) != 4) {
+                    $this->error('', 'Pas le bon nombre de votes');
                     return;
                 }
-                $voteIndex++;
-            }
-            if (count($voteList) != 4) {
-                $this->error('', 'Pas le bon nombre de votes');
-                return;
-            }
-            foreach ($voteList as $vote) {
-                $voteAsArray = get_object_vars($vote);
-                if (count($voteAsArray) !== 1) {
-                    $this->error('', 'Vote invalide.');
-                    return;
-                }
-                foreach ($voteAsArray as $gs_id => $role) {
-                    if (!in_array($role, $this->rolesEnum)) {
-                        $this->error('', 'Role voté invalide.');
+                foreach ($voteList as $vote) {
+                    $voteAsArray = get_object_vars($vote);
+                    if (count($voteAsArray) !== 1) {
+                        $this->error('', 'Vote invalide.');
                         return;
                     }
-                    $gameSession = $this->gameSessionService->get($gs_id);
-                    if ($gameSession == null
+                    foreach ($voteAsArray as $gs_id => $role) {
+                        if (!in_array($role, $this->rolesEnum)) {
+                            $this->error('', 'Role voté invalide.');
+                            return;
+                        }
+                        $gameSession = $this->gameSessionService->get($gs_id);
+                        if ($gameSession == null
                             || $gameSession->gameId != $currentGameDTO->identifier
                             || $gameSession->sessionId == $currentSessionDTO->identifier) {
-                        $this->error('', 'Personne votée invalide.');
-                        return;
-                    };
-                    $newEndVoteDTO = new EndVoteDTO();
+                            $this->error('', 'Personne votée invalide.');
+                            return;
+                        };
+                        $newEndVoteDTO = new EndVoteDTO();
 
-                    $newEndVoteDTO->votingGSId = $currentGameSessionDTO->identifier;
-                    $newEndVoteDTO->votedGSId = $gameSession->identifier;
-                    $newEndVoteDTO->role = $role;
+                        $newEndVoteDTO->votingGSId = $currentGameSessionDTO->identifier;
+                        $newEndVoteDTO->votedGSId = $gameSession->identifier;
+                        $newEndVoteDTO->role = $role;
 
-                    $endVoteDTOList[] = $newEndVoteDTO;
+                        $endVoteDTOList[] = $newEndVoteDTO;
+                    }
                 }
-            }
 
-            foreach ($endVoteDTOList as $endVoteDTO) {
-                $this->endVoteService->create($endVoteDTO);
-            }
-
-            if(!$this->error) {
-                $this->ok();
-            }
-
-            $votedCount = 0;
-            $gameSessions = $this->gameSessionService->getAllByGame($currentGameDTO->identifier);
-            foreach ($gameSessions as $gameSession) {
-                if(count($this->endVoteService->getAllByVotingGS($gameSession->identifier)) >= 4) {
-                    $votedCount++;
+                foreach ($endVoteDTOList as $endVoteDTO) {
+                    $this->endVoteService->create($endVoteDTO);
                 }
-            }
-            if ($votedCount == 5) {
-                $this->GameEnded($currentGameDTO, $gameSessions);
+
+                if(!$this->error) {
+                    $this->ok();
+                }
+
+                $votedCount = 0;
+                $gameSessions = $this->gameSessionService->getAllByGame($currentGameDTO->identifier);
+                foreach ($gameSessions as $gameSession) {
+                    if(count($this->endVoteService->getAllByVotingGS($gameSession->identifier)) >= 4) {
+                        $votedCount++;
+                    }
+                }
+                if ($votedCount == 5) {
+                    $this->GameEnded($currentGameDTO, $gameSessions);
+                }
+
+            } else {
+
+                $this->error("NO_PARTY");
+
             }
 
         } elseif ($_SESSION['token']) {
@@ -153,6 +161,10 @@ class PartyVoteAPIController extends Controller {
             return;
         }
         switch($error_code) {
+            case("NO_PARTY"):
+                header('HTTP/1.0 403 Forbidden');
+                echo 'Salon expiré';
+                break;
             case("NO_SESSION"):
                 header('HTTP/1.0 401 Unauthorized');
                 echo 'Aucune session trouvée';

@@ -1,4 +1,9 @@
 <div class="login-page">
+    <?php if(SingletonRegistry::$registry['Controller']->errorMessage) {echo('
+    <div class="error-message">
+        <p>'.SingletonRegistry::$registry['Controller']->errorMessage.'</p>
+    </div>
+    '); }?>
     <form class="form" action="" method="post">
         <h4 class="title">Connecte toi pd</h4>
         <label class="input-text-label" for="nickname">Nickname :</label>

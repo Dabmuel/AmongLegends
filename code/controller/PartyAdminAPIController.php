@@ -31,63 +31,71 @@ class PartyAdminAPIController extends Controller {
         if($currentSessionDTO && $currentSessionDTO->admin && $_GET['action']){
             $currentPartyDTO = $this->partyService->get($currentSessionDTO->partyId);
 
-            $currentGameDTO = null;
+            if($currentPartyDTO) {
 
-            if ($currentPartyDTO->activeGameId) {
-                $currentGameDTO = $this->gameService->get($currentPartyDTO->activeGameId);
-            }
+                $currentGameDTO = null;
 
-            switch ($_GET['action']) {
-                case("kickSession"):
-                    if ($_POST['sessionId']) {
-                        $this->kickSession($_POST['sessionId']);
-                    } else {
-                        $this->error('WRONG_PARAMETER');
-                    }
-                    break;
-                case("startGame"):
-                    if ($currentGameDTO) {
-                        $this->error('WRONG_STATUS');
-                    } else {
-                        $this->startGame($currentPartyDTO);
-                    }
-                    break;
-                case("finishGame"):
-                    if (!$currentGameDTO || $currentGameDTO->statut !== $this->partyStatusEnum[1]) {
-                        $this->error('WRONG_STATUS');
-                    } else {
-                        $this->finishGame($currentGameDTO);
-                    }
-                    break;
-                case("sendEndStat"):
-                    if (!$currentGameDTO || $currentGameDTO->statut !== $this->partyStatusEnum[2]) {
-                        $this->error('WRONG_STATUS');
-                    } elseif ($_POST['select-win']
-                        && $_POST['select-kill']
-                        && $_POST['select-win']
-                        && $_POST['select-kill']) {
-                        $this->endStat($currentGameDTO);
-                    } else {
-                        $this->error("WRONG_PARAMETER");
-                    }
-                    if (!$this->error) {
-                        header("Location: ".Config::$baseUrl."/party");
-                        return;
-                    }
-                    break;
-                case("newGame"):
-                    if (!$currentGameDTO || $currentGameDTO->statut !== $this->partyStatusEnum[4]) {
-                        $this->error('WRONG_STATUS');
-                    } else {
-                        $this->endGame($currentGameDTO, $currentPartyDTO);
-                    }
-                default:
-                    $this->error("WRONG_ACTION");
-                    break;
-            }
+                if ($currentPartyDTO->activeGameId) {
+                    $currentGameDTO = $this->gameService->get($currentPartyDTO->activeGameId);
+                }
 
-            if (!$this->error) {
-                $this->ok();
+                switch ($_GET['action']) {
+                    case("kickSession"):
+                        if ($_POST['sessionId']) {
+                            $this->kickSession($_POST['sessionId']);
+                        } else {
+                            $this->error('WRONG_PARAMETER');
+                        }
+                        break;
+                    case("startGame"):
+                        if ($currentGameDTO) {
+                            $this->error('WRONG_STATUS');
+                        } else {
+                            $this->startGame($currentPartyDTO);
+                        }
+                        break;
+                    case("finishGame"):
+                        if (!$currentGameDTO || $currentGameDTO->statut !== $this->partyStatusEnum[1]) {
+                            $this->error('WRONG_STATUS');
+                        } else {
+                            $this->finishGame($currentGameDTO);
+                        }
+                        break;
+                    case("sendEndStat"):
+                        if (!$currentGameDTO || $currentGameDTO->statut !== $this->partyStatusEnum[2]) {
+                            $this->error('WRONG_STATUS');
+                        } elseif ($_POST['select-win']
+                            && $_POST['select-kill']
+                            && $_POST['select-win']
+                            && $_POST['select-kill']) {
+                            $this->endStat($currentGameDTO);
+                        } else {
+                            $this->error("WRONG_PARAMETER");
+                        }
+                        if (!$this->error) {
+                            header("Location: ".Config::$baseUrl."/party");
+                            return;
+                        }
+                        break;
+                    case("newGame"):
+                        if (!$currentGameDTO || $currentGameDTO->statut !== $this->partyStatusEnum[4]) {
+                            $this->error('WRONG_STATUS');
+                        } else {
+                            $this->endGame($currentGameDTO, $currentPartyDTO);
+                        }
+                    default:
+                        $this->error("WRONG_ACTION");
+                        break;
+                }
+
+                if (!$this->error) {
+                    $this->ok();
+                }
+
+            } else {
+
+                $this->error("NO_PARTY");
+
             }
 
         } elseif (!$_GET['action']) {
@@ -183,6 +191,10 @@ class PartyAdminAPIController extends Controller {
         }
         $this->error = true;
         switch($error_code) {
+            case("NO_PARTY"):
+                header('HTTP/1.0 403 Forbidden');
+                echo 'Salon expiré';
+                break;
             case("NO_SESSION"):
                 header('HTTP/1.0 401 Unauthorized');
                 echo 'Aucune session trouvée';

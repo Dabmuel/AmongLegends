@@ -2,7 +2,7 @@
 
 class Router extends Singleton {
 
-    private $sessionManager;
+    private SessionManager $sessionManager;
 
     function __construct()
     {

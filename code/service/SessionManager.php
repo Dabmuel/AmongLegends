@@ -2,7 +2,10 @@
 
 class SessionManager extends Singleton {
 
-    private $sessionService;
+    private SessionService $sessionService;
+    private PartyService $partyService;
+
+    public $errorCode = "";
 
     function __construct()
     {
@@ -11,6 +14,7 @@ class SessionManager extends Singleton {
 
     function init() {
         $this->sessionService = SingletonRegistry::$registry['SessionService'];
+        $this->partyService = SingletonRegistry::$registry['PartyService'];
     }
 
     public $currentSessionDTO = null;
@@ -25,6 +29,15 @@ class SessionManager extends Singleton {
         session_start();
         if ($_SESSION['token']) {
             $this->currentSessionDTO = $this->sessionService->getByToken($_SESSION['token']);
+            if ($this->currentSessionDTO == null) {
+                $this->errorCode = "NO_SESSION";
+            } else {
+                $currentParty = $this->partyService->get($this->currentSessionDTO->partyId);
+                if ($currentParty == null) {
+                    $this->errorCode = "NO_PARTY";
+                }
+            }
+
             return $this->currentSessionDTO;
         }
     }
