@@ -1,7 +1,8 @@
 <div class="login-page">
     <?php if(SingletonRegistry::$registry['Controller']->errorMessage) {echo('
-    <div class="error-message">
-        <p>'.SingletonRegistry::$registry['Controller']->errorMessage.'</p>
+    <div class="error-message" id="error-container">
+        <p class="close-button" id="close-button">X</p>
+        <p class="text">'.SingletonRegistry::$registry['Controller']->errorMessage.'</p>
     </div>
     '); }?>
     <form class="form" action="" method="post">
@@ -24,4 +25,20 @@
         }
         ?>
     </form>
+    <script>
+        function errorMessageInit() {
+            const errorMessageCloseButton = document.getElementById("close-button");
+            errorMessageCloseButton.onclick = closeErrorMessage;
+        }
+
+        function closeErrorMessage(e) {
+            const errorContainer = document.getElementById("error-container");
+            errorContainer.style = 'opacity: 0';
+            setTimeout(() => {
+                errorContainer.hidden = true;
+            }, 1200);
+        }
+        
+        errorMessageInit();
+    </script>
 </div>

@@ -367,6 +367,29 @@
   background-color: #2f3136;
 }
 
+.error-message {
+  position: absolute;
+  top: 1em;
+  left: 40%;
+  right: 40%;
+  padding: 1em;
+  border-radius: 5px;
+  background-color: #40444b;
+  transition-duration: 1s;
+}
+.error-message .close-button {
+  padding: 0.3em;
+  margin: -0.5em -0.5em 0 auto;
+  text-align: right;
+  width: fit-content;
+  color: #202225;
+  font-size: 20px;
+  cursor: pointer;
+}
+.error-message .text {
+  color: #d83c3e;
+}
+
 footer {
   background-color: #202225;
   position: absolute;
