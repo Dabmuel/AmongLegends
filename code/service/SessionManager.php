@@ -29,11 +29,11 @@ class SessionManager extends Singleton {
         session_start();
         if ($_SESSION['token']) {
             $this->currentSessionDTO = $this->sessionService->getByToken($_SESSION['token']);
-            if ($this->currentSessionDTO == null) {
+            if (!$this->currentSessionDTO ) {
                 $this->errorCode = "NO_SESSION";
             } else {
                 $currentParty = $this->partyService->get($this->currentSessionDTO->partyId);
-                if ($currentParty == null) {
+                if (!$currentParty) {
                     $this->errorCode = "NO_PARTY";
                 }
             }

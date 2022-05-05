@@ -15,23 +15,35 @@ class LoginController extends Controller {
     }
 
     public function process() {
-        if ($_GET["error"]) {
-            $this->errorMessage($_GET["error"]);
-        }
-        if ($_POST["nickname"] && $this->validNickname($_POST["nickname"])) {
-            $party = null;
-            if ($_GET["party"]) {
-                $party = $this->partyService->getPartyActiveByCode($_GET["party"]);
-            }
-            if ($party == null) {
-                $party = $this->partyService->createParty();
+        if ($_POST["nickname"] && !$this->errorMessage) {
+            if ($this->validNickname($_POST["nickname"])) {
+                $party = null;
+                if ($_GET["party"]) {
+                    $party = $this->partyService->getPartyActiveByCode($_GET["party"]);
+                } else {
+                    $party = $this->partyService->createParty();
+                }
+                error_log($party->code);
+
+                if ($party == null) {
+                    $this->setErrorMessage("NO_PARTY_FROM_CODE");
+                } else {
+                    if ($this->notDuplicateNickname($_POST["nickname"], $party)) {
+                        $session = $this->sessionService->joinParty($_POST["nickname"], $party);
+                    } else {
+                        $this->setErrorMessage("NICKNAME_DUPLICATE");
+                    }
+                }
+            } else {
+                $this->setErrorMessage("NICKNAME_UNVALID");
             }
 
-            if ($this->notDuplicateNickname($_POST["nickname"], $party)) {
-                $session = $this->sessionService->joinParty($_POST["nickname"], $party);
-
+            if (!$this->errorMessage) {
                 header("Location: ".Config::$baseUrl."/party");
             }
+        }
+        if ($_GET["error"]) {
+            $this->setErrorMessage($_GET["error"]);
         }
 
         $this->front();
@@ -45,7 +57,7 @@ class LoginController extends Controller {
     }
 
     private function validNickname($nickname) {
-        return (strlen($nickname) < 30);
+        return (strlen($nickname) < 30 && strlen($nickname) > 2);
     }
 
     private function notDuplicateNickname($nickname, PartyDTO $party) {
@@ -61,8 +73,23 @@ class LoginController extends Controller {
         return $valid;
     }
 
-    private function errorMessage($errorCode) {
+    private function setErrorMessage($errorCode) {
         switch($errorCode) {
+            case("PARTY_IN_GAME"):
+                $this->errorMessage = "Erreur: Une partie est déjà en cours.";
+                break;
+            case("PARTY_FULL"):
+                $this->errorMessage = "Erreur: Le salon est complet.";
+                break;
+            case("NICKNAME_UNVALID"):
+                $this->errorMessage = "Erreur: Pseudo invalide.";
+                break;
+            case("NICKNAME_DUPLICATE"):
+                $this->errorMessage = "Erreur: Pseudo déjà existant.";
+                break;
+            case("NO_PARTY_FROM_CODE"):
+                $this->errorMessage = "Erreur: Le code ne correspond pas à un salon actif.";
+                break;
             case("NO_PARTY"):
                 $this->errorMessage = "Erreur: Le salon a expiré.";
                 break;

@@ -26,10 +26,13 @@ class SessionService extends IdentifierService {
         $partySessions = $this->getPartySessions($partyDTO->identifier);
 
         //On ne rejoint pas de party :
-        // - Qui est full (5 sessions max)
         // - Qui est en game (activeGameId existant)
-        if ($partyDTO->activeGameId !== null || count($partySessions) >= 5) {
-            return null;
+        if ($partyDTO->activeGameId !== null) {
+            return "PARTY_IN_GAME";
+        }
+        // - Qui est full (5 sessions max)
+        if (count($partySessions) >= 5) {
+            return "PARTY_FULL";
         }
 
         $admin = true;
@@ -49,8 +52,6 @@ class SessionService extends IdentifierService {
         $sessionDTO = $this->DAO->create($sessionDTO);
 
         $this->sessionManager->createSession($sessionDTO);
-
-        return $sessionDTO;
     }
 
     public function leaveParty() {

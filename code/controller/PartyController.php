@@ -14,7 +14,7 @@ class PartyController extends Controller{
         if ($this->sessionManager->currentSessionDTO && !$this->sessionManager->errorCode) {
             $this->front();
         } else {
-            header("Location: ".Config::$baseUrl."/login?error=".$this->sessionManager->errorCode);
+            header("Location: ".Config::$baseUrl."/login".($this->sessionManager->errorCode ? "?error=".$this->sessionManager->errorCode : ""));
         }
 
     }
