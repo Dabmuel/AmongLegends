@@ -48,5 +48,14 @@ export const insulte = [
     'le légume',
     'la banane',
     'la plante verte',
-    'le phacochère'
+    'le phacochère',
+    'le sniffeur de pet',
+    'l\'enculeur de mouches',
+    'l\'aspirateur à foutre',
+    'le gay irl',
+    'le mec qui CC en ARAM',
+    'la cave à sperme',
+    'la cuve à foutre',
+    'la trousse à bites',
+    'a pété lol'
 ]
