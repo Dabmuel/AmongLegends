@@ -5,6 +5,8 @@ class LoginController extends Controller {
     private PartyService $partyService;
     private SessionService $sessionService;
 
+    public string $errorMessage = "";
+
     function __construct() {
         parent::__construct();
 
@@ -13,6 +15,9 @@ class LoginController extends Controller {
     }
 
     public function process() {
+        if ($_GET["error"]) {
+            $this->errorMessage($_GET["error"]);
+        }
         if ($_POST["nickname"] && $this->validNickname($_POST["nickname"])) {
             $party = null;
             if ($_GET["party"]) {
@@ -54,6 +59,16 @@ class LoginController extends Controller {
             }
         }
         return $valid;
+    }
+
+    private function getErrorMessage($errorCode) {
+        switch($errorCode) {
+            case(""):
+                break;
+            default:
+                $this->errorMessage = 'Erreur quelconque. Je ne sais pas si tu avais remarqué mais il y a différents types de profs.';
+                break;
+        }
     }
 }
 
