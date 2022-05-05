@@ -35,7 +35,6 @@ class PartyService extends IdentifierService {
         $party = new PartyDTO();
         
         $party->code = $this->newToken();
-        $party->active = true;
         $party->dyingDate = new DateTime();
         $party->dyingDate->add(DateInterval::createFromDateString('1 day'));
 

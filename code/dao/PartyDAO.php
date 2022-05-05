@@ -11,10 +11,9 @@ class PartyDAO extends IdentifierDAO {
     public function create($partyDTO) {
         try {
             $sql = $this->db->prepare(
-                'INSERT INTO '.$this->tableName.' (ACTIVE , CODE , DYING_DATE , ACTIVE_GAME_ID) 
-                VALUES (:active , :code , :dyingDate, :activeGameId)'
+                'INSERT INTO '.$this->tableName.' ( CODE , DYING_DATE , ACTIVE_GAME_ID) 
+                VALUES ( :code , :dyingDate, :activeGameId)'
             );
-            $sql->bindParam('active', $partyDTO->active, PDO::PARAM_BOOL);
             $sql->bindParam('code', $partyDTO->code);
             $sql->bindParam('dyingDate', $partyDTO->dyingDate->format('Y-m-d H:i:s'));
             $sql->bindParam('activeGameId', $partyDTO->activeGameId);
@@ -30,14 +29,12 @@ class PartyDAO extends IdentifierDAO {
         try {
             $sql = $this->db->prepare(
                 'UPDATE '.$this->tableName.' SET
-                ACTIVE = :active , 
                 CODE = :code , 
                 DYING_DATE = :dyingDate ,
                 ACTIVE_GAME_ID = :activeGameId 
                 WHERE ID = :id'
             );
             $sql->execute([
-                'active' => $partyDTO->active,
                 'code' => $partyDTO->code,
                 'dyingDate' => $partyDTO->dyingDate->format('Y-m-d H:i:s'),
                 'activeGameId' => $partyDTO->activeGameId,
@@ -53,7 +50,6 @@ class PartyDAO extends IdentifierDAO {
         $partyDTO = new PartyDTO();
 
         $partyDTO->identifier = $data['ID'];
-        $partyDTO->active = $data['ACTIVE'];
         $partyDTO->code = $data['CODE'];
         $partyDTO->dyingDate = $data['DYING_DATE'] ? DateTime::createFromFormat('Y-m-d H:i:s', $data['DYING_DATE']) : null;
         $partyDTO->activeGameId = $data['ACTIVE_GAME_ID'];
