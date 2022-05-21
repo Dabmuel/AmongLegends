@@ -4,6 +4,8 @@ class Role extends Singleton {
 
     public $name;
 
+    public $categorie = "Normal";
+
     public $addInfos;
 
     public function __construct() {

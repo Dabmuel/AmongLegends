@@ -5,6 +5,8 @@ class Sasuke extends Role implements RoleCalculation {
     public function __construct()
     {
         parent::__construct();
+
+        $this->categorie = "Imposteur";
     }
 
     /**
