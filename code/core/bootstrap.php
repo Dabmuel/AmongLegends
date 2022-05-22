@@ -14,6 +14,7 @@ include($base."code/constant/PartyStatut.php");
 include($base."code/constant/Role.php");
 include($base."code/constant/RoleCalculation.php");
 include($base."code/constant/Roles.php");
+include($base."code/constant/RoleCategorie.php");
 
 include($base."code/constant/roles/Gay.php");
 include($base."code/constant/roles/Krik.php");

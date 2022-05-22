@@ -41,6 +41,9 @@ class PartyAPIController extends Controller {
                 if(!$currentGameDTO) {
                     $partyWorkflowDTO->state = $this->partyStatutEnum[0];//Lobby
                     $partyWorkflowDTO->data = $this->getPartyLobbyDTO($currentPartyDTO);
+                    if($_GET['maxiData']) {
+                        $partyWorkflowDTO->data = $this->getPartyLobbyDTOWithRoles($currentPartyDTO);
+                    }
                 } elseif($currentGameDTO->statut === $this->partyStatutEnum[1]) { //InGame
                     $partyWorkflowDTO->state = $this->partyStatutEnum[1];
                     if($_GET['maxiData']) {
@@ -107,6 +110,35 @@ class PartyAPIController extends Controller {
             $partyLobbyDTO->userList[] = $userDTO;
         }
         usort($partyLobbyDTO->userList, 'pointsComparaison');
+
+        return $partyLobbyDTO;
+    }
+
+    private function getPartyLobbyDTOWithRoles($currentPartyDTO) {
+        $partyLobbyDTO = $this->getPartyLobbyDTO($currentPartyDTO);
+
+        $gameTypes = SingletonRegistry::$registry["GameType"]->gameTypeEnum;
+        $roles = SingletonRegistry::$registry["Roles"]->getRolesObject();
+
+        foreach ($gameTypes as $gameType) {
+            $gameTypeDTO = new PartyLobbyDTO\GameTypeDTO();
+
+            $gameTypeDTO->name = $gameType;
+
+            foreach ($roles as $role) {
+                if (in_array($gameTypeDTO->name, $role->gameTypes)) {
+                    $roleDTO = new PartyLobbyDTO\RoleDTO();
+
+                    $roleDTO->categorie = $role->categorie;
+                    $roleDTO->default = $role->default;
+                    $roleDTO->name = $role->name;
+
+                    $gameTypeDTO->roles[] = $roleDTO;
+                }
+            }
+
+            $partyLobbyDTO->gameTypes[] = $gameTypeDTO;
+        }
 
         return $partyLobbyDTO;
     }

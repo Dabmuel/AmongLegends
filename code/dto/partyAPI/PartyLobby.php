@@ -4,6 +4,8 @@ namespace {
     class PartyLobbyDTO extends DTO {
 
         public $userList = [];
+
+        public $gameTypes = [];
     }
 }
 
@@ -17,5 +19,20 @@ namespace PartyLobbyDTO {
         public $admin = false;
 
         public $id = null;
+    }
+
+    class GameTypeDTO {
+
+        public $name;
+
+        public $roles = [];
+    }
+
+    class RoleDTO {
+        public $categorie;
+
+        public $default;
+
+        public $name;
     }
 }

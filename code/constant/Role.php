@@ -6,6 +6,10 @@ class Role extends Singleton {
 
     public $categorie = "Normal";
 
+    public $gameTypes = ["Normal"];
+
+    public $default = 1;
+
     public $addInfos;
 
     public function __construct() {

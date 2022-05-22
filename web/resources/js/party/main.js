@@ -14,11 +14,19 @@ setInterval(process, 5000);
 async function process() {
 
     const response = await api.refresh();
+    const admin = document.getElementById("page-content").getAttribute('admin');
 
     switch(response.state) {
         case 'Lobby':
             if (status !== 'Lobby') {
-                lobbyPage.process(response.data);
+                if (admin === 'true') {
+                    const responseWithData = await api.refresh(true);
+                    if (responseWithData.state === 'Lobby' && responseWithData.data != null) {
+                        lobbyPage.processWithGametypes(responseWithData.data);
+                    }
+                } else {
+                    lobbyPage.process(response.data);
+                }
             } else {
                 lobbyPage.userList(response.data);
             }
@@ -33,7 +41,6 @@ async function process() {
             break;
         case 'EndStat':
             if (status !== 'EndStat') {
-                const admin = document.getElementById("page-content").getAttribute('admin');
                 if (admin === 'true') {
                     const responseWithData = await api.refresh(true);
                     if (responseWithData.state === 'EndStat' && responseWithData.data != null) {

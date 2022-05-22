@@ -13,22 +13,29 @@ class LobbyPage extends AbstractPage {
 
         const container = document.createElement('div');
         container.className = 'lobby-page';
+        container.id = 'lobby-page';
+
+        const lobbyContainer = document.createElement('div');
+        lobbyContainer.className = 'lobby-container'
 
         const header = document.createElement('p');
         header.className = 'title';
         header.appendChild(document.createTextNode('Liste des utilisateurs:'));
 
-        container.appendChild(header);
+        lobbyContainer.appendChild(header);
 
         const userContainer = document.createElement('div');
         userContainer.className = 'user-list';
         userContainer.id = 'user-list';
 
-        container.appendChild(userContainer);
+        lobbyContainer.appendChild(userContainer);
+
+        container.appendChild(lobbyContainer);
 
         if (this.session.admin === 'true') {
-            const gameContainer = document.createElement('div');
+            const gameContainer = document.createElement('form');
             gameContainer.id = 'admin-game-container';
+            gameContainer.method = 'post';
             gameContainer.className = 'game';
 
             container.appendChild(gameContainer);
@@ -37,6 +44,53 @@ class LobbyPage extends AbstractPage {
         this.contentDiv.appendChild(container);
 
         this.userList(data);
+    }
+
+    processWithGametypes(data) {
+        this.process(data);
+
+        const gameContainer = document.getElementById('admin-game-container');
+        console.log(gameContainer);
+        if (gameContainer != null) {
+            gameContainer.innerHTML = '';
+
+            const header = document.createElement('p');
+            header.className = 'title';
+            header.appendChild(document.createTextNode('Configure la partie'));
+            gameContainer.appendChild(header);
+
+            const selectLabel = document.createElement('label');
+            selectLabel.setAttribute('for', 'gametype');
+            selectLabel.className = 'input-select-label'
+            selectLabel.innerHTML = 'Le type de partie :';
+            const select = document.createElement('select');
+            select.id = 'gametype';
+            select.name = 'gametype';
+            select.className = 'input-select'
+            select.required = true;
+
+            data.gameTypes.forEach(gameType => {
+                const option = document.createElement('option');
+                option.value = gameType.name;
+                option.appendChild(document.createTextNode(gameType.name));
+                select.appendChild(option);
+            });
+
+            gameContainer.appendChild(selectLabel);
+            gameContainer.appendChild(select);
+
+            const startGameButton = document.createElement('button');
+            startGameButton.className = 'button';
+            startGameButton.id = 'startgame-button';
+            startGameButton.onclick = startGame;
+            if (data.userList.length < 5) {
+                startGameButton.disabled = true;
+            }
+            startGameButton.appendChild(document.createTextNode('Commencer la partie'));
+
+            gameContainer.appendChild(startGameButton);
+        }
+
     }
 
     userList(data) {
@@ -85,19 +139,18 @@ class LobbyPage extends AbstractPage {
             userList.appendChild(newEl);
         });
 
-        const gameContainer = document.getElementById('admin-game-container');
-        if (gameContainer != null) {
-            gameContainer.innerHTML = '';
+        this.updateStartButtonStatus(data);
+    }
 
-            const startGameButton = document.createElement('button');
-            startGameButton.className = 'button';
-            startGameButton.onclick = startGame;
-            if (data.userList.length < 5) {
-                startGameButton.disabled = true;
-            }
-            startGameButton.appendChild(document.createTextNode('Commencer la partie'));
-
-            gameContainer.appendChild(startGameButton);
+    updateStartButtonStatus(data) {
+        const startGameButton = document.getElementById('startgame-button');
+        if (!startGameButton) {
+            return;
+        }
+        if (data.userList.length < 5) {
+            startGameButton.disabled = true;
+        } else {
+            startGameButton.disabled = false;
         }
     }
 }
