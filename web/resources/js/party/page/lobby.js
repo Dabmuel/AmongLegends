@@ -22,7 +22,7 @@ class LobbyPage extends AbstractPage {
 
         const header = document.createElement('p');
         header.className = 'title';
-        header.appendChild(document.createTextNode('Liste des utilisateurs:'));
+        header.appendChild(document.createTextNode('Liste des utilisateurs'));
 
         lobbyContainer.appendChild(header);
 
@@ -54,7 +54,6 @@ class LobbyPage extends AbstractPage {
         gameTypeData = data.gameTypes;
 
         const gameContainer = document.getElementById('admin-game-container');
-        console.log(gameContainer);
         if (gameContainer != null) {
             gameContainer.innerHTML = '';
 
@@ -72,6 +71,7 @@ class LobbyPage extends AbstractPage {
             select.name = 'gametype';
             select.className = 'input-select'
             select.required = true;
+            select.onchange = setGameTypeEvent;
 
             data.gameTypes.forEach(gameType => {
                 const option = document.createElement('option');
@@ -158,14 +158,43 @@ class LobbyPage extends AbstractPage {
         if (!startGameButton) {
             return;
         }
-        if (data.userList.length < 5) {
-            startGameButton.disabled = true;
-        } else {
-            startGameButton.disabled = false;
+
+        let rolesCount = 0;
+        const rolesContainer = document.getElementById('roles-container');
+        if (!rolesContainer) {
+            return;
         }
+        rolesContainer.childNodes.forEach(catRoles => {
+            catRoles.childNodes.forEach(roleDiv => {
+                rolesCount += parseInt(roleDiv.lastChild.value);
+            });
+        });
+
+        startGameButton.disabled = data.userList.length < 5 || rolesCount < 5;
     }
 }
 
+function checkRoles(e) {
+    const startGameButton = document.getElementById('startgame-button');
+    if (!startGameButton) {
+        return;
+    }
+
+    let rolesCount = 0;
+    const rolesContainer = document.getElementById('roles-container');
+    if (!rolesContainer) {
+        return;
+    }
+    rolesContainer.childNodes.forEach(catRoles => {
+        catRoles.childNodes.forEach(roleDiv => {
+            rolesCount += parseInt(roleDiv.lastChild.value);
+        });
+    });
+
+    if (rolesCount < 5) {
+        startGameButton.disabled = true;
+    }
+}
 function setGameTypeEvent(e) {
     setGameType(e.target.value);
 }
@@ -190,11 +219,13 @@ function setGameType(gameTypeName) {
     container.innerHTML = '';
 
     const categorieContainer = document.createElement('div');
+    categorieContainer.id = 'categorie-container';
     categorieContainer.className = 'categorie-container';
 
     container.appendChild(categorieContainer);
 
     const rolesContainer = document.createElement('div');
+    rolesContainer.id = 'roles-container';
     rolesContainer.className = 'roles-container';
 
     container.appendChild(rolesContainer);
@@ -204,13 +235,14 @@ function setGameType(gameTypeName) {
 
         if (!categorieButton) {
             categorieButton = document.createElement('button');
+            categorieButton.type = 'button';
             categorieButton.id = role.categorie + '-cat-button';
-            categorieButton.className = 'cat-button'
-            categorieButton.setAttribute('role', role.categorie);
+            categorieButton.className = 'cat-button';
+            categorieButton.onclick = setCategorieEvent;
             categorieButton.appendChild(document.createTextNode(role.categorie));
 
             categorieContainer.appendChild(categorieButton);
-        };
+        }
 
         let categorieRoles = document.getElementById(role.categorie + '-cat-roles');
 
@@ -220,13 +252,55 @@ function setGameType(gameTypeName) {
             categorieRoles.className = 'cat-roles';
 
             rolesContainer.appendChild(categorieRoles);
-        };
+        }
 
-        const roleSelect = document.createElement('p');
-        roleSelect.innerHTML = role.name;
+        const roleDiv = document.createElement('div');
+        roleDiv.className = 'role-input';
 
-        categorieRoles.appendChild(roleSelect);
+        const roleLabel = document.createElement('label');
+        roleLabel.setAttribute('for', role.name + '-input')
+        roleLabel.appendChild(document.createTextNode(role.name + ' :'));
+
+        const roleinput = document.createElement('input');
+        roleinput.type = 'number';
+        roleinput.id = role.name + '-input';
+        roleinput.name = role.name;
+        roleinput.value = role.default;
+        roleinput.min = '0';
+        roleinput.max = '100';
+        roleinput.onchange = checkRoles;
+
+        roleDiv.appendChild(roleLabel);
+        roleDiv.appendChild(roleinput);
+
+        categorieRoles.appendChild(roleDiv);
+
+        setCategorie(categorieContainer.firstElementChild.innerHTML);
     });
+}
+
+function setCategorieEvent(e) {
+    setCategorie(e.target.innerHTML);
+}
+
+function setCategorie(categorie) {
+    const categorieContainer = document.getElementById('categorie-container');
+    categorieContainer.childNodes.forEach(button => {
+        button.className = 'cat-button';
+    });
+
+    const rolesContainer = document.getElementById('roles-container');
+    rolesContainer.childNodes.forEach(roleContainer => {
+        roleContainer.className = 'cat-roles';
+    });
+
+    const categorieButton = document.getElementById(categorie + '-cat-button');
+    const categorieRoles = document.getElementById(categorie + '-cat-roles');
+
+    if(categorieButton && categorieRoles) {
+        categorieButton.className += ' selected';
+        categorieRoles.className += ' selected';
+    }
 }
 
 function kickSession(e) {

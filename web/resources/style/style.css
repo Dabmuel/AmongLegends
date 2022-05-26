@@ -239,11 +239,57 @@
   font-weight: bold;
 }
 .lobby-page .game {
-  margin-left: 1em;
-  width: 66%;
   display: flex;
   flex-direction: column;
   justify-content: center;
+  margin-left: 1em;
+}
+.lobby-page .game .gameroles-container {
+  margin-bottom: 1em;
+}
+.lobby-page .game .gameroles-container .categorie-container {
+  display: flex;
+  flex-direction: row;
+}
+.lobby-page .game .gameroles-container .categorie-container .cat-button {
+  padding: 0.5em;
+  font-size: 16px;
+  border: none;
+  border-top-left-radius: 5px;
+  border-top-right-radius: 5px;
+  cursor: pointer;
+  background-color: #36393f;
+  color: #b9bbbe;
+}
+.lobby-page .game .gameroles-container .categorie-container .cat-button.selected {
+  background-color: #40444b;
+  cursor: initial;
+}
+.lobby-page .game .gameroles-container .roles-container .cat-roles {
+  border-bottom-right-radius: 5px;
+  border-bottom-left-radius: 5px;
+  background-color: #40444b;
+  padding: 1em 1em 0;
+  display: none;
+}
+.lobby-page .game .gameroles-container .roles-container .cat-roles .role-input {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  padding-bottom: 1em;
+}
+.lobby-page .game .gameroles-container .roles-container .cat-roles .role-input label {
+  padding-right: 1em;
+}
+.lobby-page .game .gameroles-container .roles-container .cat-roles .role-input input {
+  background-color: #b9bbbe;
+  border-radius: 5px;
+  border: none;
+  padding: 0.2em;
+  color: #2f3136;
+}
+.lobby-page .game .gameroles-container .roles-container .cat-roles.selected {
+  display: block;
 }
 
 .login-page {

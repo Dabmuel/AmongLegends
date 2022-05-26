@@ -56,3 +56,53 @@
     justify-content: center
 
     margin-left: 1em
+
+    .gameroles-container
+      margin-bottom: 1em
+
+      .categorie-container
+        display: flex
+        flex-direction: row
+
+        .cat-button
+          padding: 0.5em
+          font-size: 16px
+          border: none
+          border-top-left-radius: 5px
+          border-top-right-radius: 5px
+          cursor: pointer
+
+          background-color: $light-background
+          color: $text
+
+        .cat-button.selected
+          background-color: $item-background
+          cursor: initial
+
+      .roles-container
+        .cat-roles
+          border-bottom-right-radius: 5px
+          border-bottom-left-radius: 5px
+          background-color: $item-background
+          padding: 1em 1em 0
+          display: none
+
+          .role-input
+            display: flex
+            flex-direction: row
+            justify-content: space-between
+
+            padding-bottom: 1em
+
+            label
+              padding-right: 1em
+
+            input
+              background-color: $text
+              border-radius: 5px
+              border: none
+              padding: 0.2em
+              color: $background
+
+        .cat-roles.selected
+          display: block
