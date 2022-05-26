@@ -190,6 +190,8 @@
 .lobby-page {
   background-color: #36393f;
   border-radius: 5px;
+  display: flex;
+  flex-direction: row;
   width: fit-content;
   margin-left: auto;
   margin-right: auto;
@@ -205,7 +207,7 @@
   font-size: 1.5em;
   font-weight: bold;
 }
-.lobby-page .user-list .user {
+.lobby-page .lobby-container .user-list .user {
   display: flex;
   flex-direction: row;
   justify-content: flex-start;
@@ -213,32 +215,34 @@
   border-radius: 5px;
   margin: 0.5em 0;
 }
-.lobby-page .user-list .user .admin {
+.lobby-page .lobby-container .user-list .user .admin {
   height: 19px;
   width: 15px;
   margin: 0.5em;
 }
-.lobby-page .user-list .user .nickname {
+.lobby-page .lobby-container .user-list .user .nickname {
   margin: 0.5em;
   min-width: 150px;
 }
-.lobby-page .user-list .user .points {
+.lobby-page .lobby-container .user-list .user .points {
   margin: 0.5em;
   width: 50px;
   text-align: center;
 }
-.lobby-page .user-list .user .button.cancel {
+.lobby-page .lobby-container .user-list .user .button.cancel {
   border-radius: 3px;
   margin: 4px;
   margin-left: 1em;
   padding: 4px 12px;
 }
-.lobby-page .user-list .user.you {
+.lobby-page .lobby-container .user-list .user.you {
   font-weight: bold;
 }
 .lobby-page .game {
-  margin-top: 1em;
+  margin-left: 1em;
+  width: 66%;
   display: flex;
+  flex-direction: column;
   justify-content: center;
 }
 

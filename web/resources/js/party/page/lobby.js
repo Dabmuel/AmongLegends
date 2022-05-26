@@ -2,6 +2,8 @@ import { AbstractPage } from './abstract.js';
 import { api } from '../api.js';
 import { baseUrl } from "../../config.js";
 
+let gameTypeData = null;
+
 class LobbyPage extends AbstractPage {
 
     constructor() {
@@ -49,6 +51,8 @@ class LobbyPage extends AbstractPage {
     processWithGametypes(data) {
         this.process(data);
 
+        gameTypeData = data.gameTypes;
+
         const gameContainer = document.getElementById('admin-game-container');
         console.log(gameContainer);
         if (gameContainer != null) {
@@ -79,6 +83,11 @@ class LobbyPage extends AbstractPage {
             gameContainer.appendChild(selectLabel);
             gameContainer.appendChild(select);
 
+            const gameRolesContainer = document.createElement('div');
+            gameRolesContainer.id = 'gameroles-container';
+            gameRolesContainer.className = 'gameroles-container';
+            gameContainer.appendChild(gameRolesContainer);
+
             const startGameButton = document.createElement('button');
             startGameButton.className = 'button';
             startGameButton.id = 'startgame-button';
@@ -89,6 +98,8 @@ class LobbyPage extends AbstractPage {
             startGameButton.appendChild(document.createTextNode('Commencer la partie'));
 
             gameContainer.appendChild(startGameButton);
+
+            setGameType(select.value);
         }
 
     }
@@ -153,6 +164,69 @@ class LobbyPage extends AbstractPage {
             startGameButton.disabled = false;
         }
     }
+}
+
+function setGameTypeEvent(e) {
+    setGameType(e.target.value);
+}
+
+function setGameType(gameTypeName) {
+    let gameType = null;
+
+    const container = document.getElementById('gameroles-container');
+
+    gameTypeData.forEach(
+        gameTypeSex => {
+            if(gameTypeSex.name === gameTypeName) {
+                gameType = gameTypeSex;
+            }
+        }
+    );
+
+    if (!gameType || !container) {
+        return;
+    }
+
+    container.innerHTML = '';
+
+    const categorieContainer = document.createElement('div');
+    categorieContainer.className = 'categorie-container';
+
+    container.appendChild(categorieContainer);
+
+    const rolesContainer = document.createElement('div');
+    rolesContainer.className = 'roles-container';
+
+    container.appendChild(rolesContainer);
+
+    gameType.roles.forEach(role => {
+        let categorieButton = document.getElementById(role.categorie + '-cat-button');
+
+        if (!categorieButton) {
+            categorieButton = document.createElement('button');
+            categorieButton.id = role.categorie + '-cat-button';
+            categorieButton.className = 'cat-button'
+            categorieButton.setAttribute('role', role.categorie);
+            categorieButton.appendChild(document.createTextNode(role.categorie));
+
+            categorieContainer.appendChild(categorieButton);
+        };
+
+        let categorieRoles = document.getElementById(role.categorie + '-cat-roles');
+
+        if (!categorieRoles) {
+            categorieRoles = document.createElement('div');
+            categorieRoles.id = role.categorie + '-cat-roles';
+            categorieRoles.className = 'cat-roles';
+
+            rolesContainer.appendChild(categorieRoles);
+        };
+
+        const roleSelect = document.createElement('p');
+        roleSelect.innerHTML = role.name;
+
+        categorieRoles.appendChild(roleSelect);
+    });
 }
 
 function kickSession(e) {
