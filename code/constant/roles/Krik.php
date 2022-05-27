@@ -5,6 +5,11 @@ class Krik extends Role implements RoleCalculation {
     public function __construct()
     {
         parent::__construct();
+
+        $this->gameTypes = [
+            "Normal",
+            "ARAM"
+        ];
     }
 
     /**
@@ -36,7 +41,7 @@ class Krik extends Role implements RoleCalculation {
         return $points;
     }
 
-    public function getRoleAddInfos($sessionId) {
+    public function getRoleAddInfos($sessionId, $gameId) {
         return null;
     }
 }

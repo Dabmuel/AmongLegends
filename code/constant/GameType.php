@@ -8,7 +8,8 @@ class GameType extends Singleton {
     }
 
     public $gameTypeEnum = [
-        "Normal"
+        "Normal",
+        "ARAM"
     ];
 }
 

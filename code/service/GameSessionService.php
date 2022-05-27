@@ -60,7 +60,7 @@ class GameSessionService extends IdentifierService {
             $newGameSession->gameId = $gameId;
             $newGameSession->nickname = $session->nickname;
             $newGameSession->role = $roleV;
-            $newGameSession->roleAddInfos = SingletonRegistry::$registry['Role::'.$roleV]->getRoleAddInfos($session->identifier);
+            $newGameSession->roleAddInfos = SingletonRegistry::$registry['Role::'.$roleV]->getRoleAddInfos($session->identifier, $gameId);
             $newGameSession->points = 0;
             $newGameSession->voted = false;
 
@@ -94,7 +94,7 @@ class GameSessionService extends IdentifierService {
             $newGameSession->gameId = $gameId;
             $newGameSession->nickname = $session->nickname;
             $newGameSession->role = $roleV;
-            $newGameSession->roleAddInfos = SingletonRegistry::$registry['Role::'.$roleV]->getRoleAddInfos($session->identifier);
+            $newGameSession->roleAddInfos = SingletonRegistry::$registry['Role::'.$roleV]->getRoleAddInfos($session->identifier, $gameId);
             $newGameSession->points = 0;
             $newGameSession->voted = false;
 

@@ -7,6 +7,11 @@ class SussyBaka extends Role implements RoleCalculation {
         parent::__construct();
 
         $this->categorie = "Imposteur";
+
+        $this->gameTypes = [
+            "Normal",
+            "ARAM"
+        ];
     }
 
     /**
@@ -38,7 +43,7 @@ class SussyBaka extends Role implements RoleCalculation {
         return $points;
     }
 
-    public function getRoleAddInfos($sessionId) {
+    public function getRoleAddInfos($sessionId, $gameId) {
         return null;
     }
 }

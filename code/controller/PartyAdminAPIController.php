@@ -141,7 +141,7 @@ class PartyAdminAPIController extends Controller {
 
         $roles = [];
         $roleCount = 0;
-        $allExistingRoles = SingletonRegistry::$registry["Roles"]->rolesEnum;
+        $allExistingRoles = SingletonRegistry::$registry["Roles"]->getRolesEnumByGametype($gametype);
         foreach ($allExistingRoles as $existingRole) {
             $number = $_POST[$existingRole];
             if ($number != null && is_numeric($number) && $number > 0) {

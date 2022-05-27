@@ -5,6 +5,11 @@ class Gay extends Role implements RoleCalculation {
     public function __construct()
     {
         parent::__construct();
+
+        $this->gameTypes = [
+            "Normal",
+            "ARAM"
+        ];
     }
 
     /**
@@ -28,19 +33,26 @@ class Gay extends Role implements RoleCalculation {
         return $points;
     }
 
-    public function getRoleAddInfos($sessionId)
+    public function getRoleAddInfos($sessionId, $gameId)
     {
         $currentSession = SingletonRegistry::$registry['SessionService']->get($sessionId);
         $partySessions = SingletonRegistry::$registry['SessionService']->getPartySessions($currentSession->partyId);
 
-        $nicknames = [
-            '##Toplaner',
-            '##Jungler',
-            '##Midlaner',
-            '##Adc',
-            '##Support',
-            '##YourLaner'
-        ];
+        $currentGame = SingletonRegistry::$registry['GameService']->get($gameId);
+
+        if ($currentGame->type === "Normal") {
+            $nicknames = [
+                '##Toplaner',
+                '##Jungler',
+                '##Midlaner',
+                '##Adc',
+                '##Support',
+                '##YourLaner'
+            ];
+        } else {
+            $nicknames = [];
+        }
+
 
         foreach ($partySessions as $partySession) {
             if ($partySession->identifier !== $currentSession->identifier) {
