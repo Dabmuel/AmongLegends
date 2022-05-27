@@ -14,12 +14,13 @@ class GameService extends IdentifierService {
         $this->rolesEnum = SingletonRegistry::$registry["Roles"]->rolesEnum;
     }
 
-    function startNewGame($partyId) {
+    function startNewGame($partyId, $gameType, $roles) {
         $newGame = new GameDTO();
 
         $newGame->partyId = $partyId;
         $newGame->statut = $this->partyStatutEnum[1];//InGame
-        $newGame->type = SingletonRegistry::$registry["GameType"]->gameTypeEnum[0];
+        $newGame->type = $gameType;
+        $newGame->roles = $roles;
 
         return $this->create($newGame);
     }

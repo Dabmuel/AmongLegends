@@ -174,9 +174,13 @@ class PartyAPIController extends Controller {
     private function getGameVotingDTO(GameSessionDTO $currentGameSessionDTO, GameDTO $currentGameDTO) {
         $gameVotingDTO = new GameVotingDTO();
 
-        foreach(SingletonRegistry::$registry['Roles']->rolesEnum as $role) {
-            if ($role !== $currentGameSessionDTO->role) {
-                $gameVotingDTO->roleList[] = $role;
+        foreach($currentGameDTO->roles as $role => $count) {
+            if($count > 0) {
+                if ($role !== $currentGameSessionDTO->role) {
+                    $gameVotingDTO->roleList[$role] = $count;
+                } else if ($count > 1) {
+                    $gameVotingDTO->roleList[$role] = $count -1;
+                }
             }
         }
 

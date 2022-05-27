@@ -7,4 +7,6 @@ class GameDTO extends IdentifierDTO {
     public $statut;
 
     public $type;
+
+    public $roles;
 }

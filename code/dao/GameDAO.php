@@ -11,13 +11,14 @@ class GameDAO extends IdentifierDAO {
     public function create($gameDTO) {
         try {
             $sql = $this->db->prepare(
-                'INSERT INTO '.$this->tableName.' (PARTY_ID , STATUT , TYPE) 
-                VALUES (:partyId , :statut , :type)'
+                'INSERT INTO '.$this->tableName.' (PARTY_ID , STATUT , TYPE, ROLES) 
+                VALUES (:partyId , :statut , :type, :roles)'
             );
             $sql->execute([
                 'partyId' => $gameDTO->partyId,
                 'statut' => $gameDTO->statut,
-                'type' => $gameDTO->type
+                'type' => $gameDTO->type,
+                'roles' => json_encode($gameDTO->roles)
             ]);
             $gameDTO->identifier = $this->db->lastInsertId();
             return $gameDTO;
@@ -32,13 +33,15 @@ class GameDAO extends IdentifierDAO {
                 'UPDATE '.$this->tableName.' SET
                 PARTY_ID = :partyId , 
                 STATUT = :statut , 
-                TYPE = :type 
+                TYPE = :type , 
+                ROLES = :roles 
                 WHERE ID = :id'
             );
             $sql->execute([
                 'partyId' => $gameDTO->partyId,
                 'statut' => $gameDTO->statut,
                 'type' => $gameDTO->type,
+                'roles' => json_encode($gameDTO->roles),
                 'id' => $gameDTO->identifier
             ]);
             return $gameDTO;
@@ -54,6 +57,7 @@ class GameDAO extends IdentifierDAO {
         $gameDTO->partyId = $data['PARTY_ID'];
         $gameDTO->statut = $data['STATUT'];
         $gameDTO->type = $data['TYPE'];
+        $gameDTO->roles = json_decode($data['ROLES']);
 
         return $gameDTO;
     }

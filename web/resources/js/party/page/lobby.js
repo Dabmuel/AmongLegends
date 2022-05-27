@@ -38,6 +38,7 @@ class LobbyPage extends AbstractPage {
             const gameContainer = document.createElement('form');
             gameContainer.id = 'admin-game-container';
             gameContainer.method = 'post';
+            gameContainer.action = './party/admin.php?action=startGame'
             gameContainer.className = 'game';
 
             container.appendChild(gameContainer);
@@ -91,7 +92,7 @@ class LobbyPage extends AbstractPage {
             const startGameButton = document.createElement('button');
             startGameButton.className = 'button';
             startGameButton.id = 'startgame-button';
-            startGameButton.onclick = startGame;
+            startGameButton.type = 'submit';
             if (data.userList.length < 5) {
                 startGameButton.disabled = true;
             }

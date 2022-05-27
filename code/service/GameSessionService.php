@@ -17,33 +17,89 @@ class GameSessionService extends IdentifierService {
     }
 
     public function generateGameSessions($sessionList, $roleList, $gameId) {
-        if (count($sessionList) !== count($roleList)) {
+        $rolesCount = 0;
+        foreach ($roleList as $count) {
+            $rolesCount += $count;
+        }
+        if (count($sessionList) > $rolesCount) {
             throw new Exception();
         }
 
         $returner = [];
 
-        foreach ($sessionList as $session) {
-            $newGameSession = new GameSessionDTO();
+        $impostorRoles = [];
+        foreach ($roleList as $role => $count) {
+            $roleObject = SingletonRegistry::$registry["Role::".$role];
+            if ($roleObject->categorie === "Imposteur") {
+                $impostorRoles[$role] = $count;
+            }
+        }
+        if (count($impostorRoles) > 0) {
+            $impostorRolesCount = 0;
+            foreach ($impostorRoles as $count) {
+                $impostorRolesCount += $count;
+            }
 
-            $roleI = rand(0, count($roleList) -1);
+            $roleI = rand(1, $impostorRolesCount);
+            $roleV = '';
+            $counting = 0;
+            foreach ($impostorRoles as $role => $count) {
+                $counting += $count;
+                if ($roleI <= $counting) {
+                    $roleV = $role;
+                    break;
+                }
+            }
+
+            $sessionI = rand(0, count($sessionList) -1);
+            $session = $sessionList[$sessionI];
+
+            $newGameSession = new GameSessionDTO();
 
             $newGameSession->sessionId = $session->identifier;
             $newGameSession->gameId = $gameId;
             $newGameSession->nickname = $session->nickname;
-            $newGameSession->role = $roleList[$roleI];
-            $newGameSession->roleAddInfos = SingletonRegistry::$registry['Role::'.$roleList[$roleI]]->getRoleAddInfos($session->identifier);
+            $newGameSession->role = $roleV;
+            $newGameSession->roleAddInfos = SingletonRegistry::$registry['Role::'.$roleV]->getRoleAddInfos($session->identifier);
             $newGameSession->points = 0;
             $newGameSession->voted = false;
 
-            $tempRoleList = [];
-            foreach ($roleList as $role) {
-                if ($role !== $roleList[$roleI]) {
-                    $tempRoleList[] = $role;
+            $rolesCount--;
+            $roleList[$roleV]--;
+
+            unset($sessionList[$sessionI]);
+
+            $newGameSession = $this->create($newGameSession);
+
+            $returner[] = $newGameSession;
+        }
+
+
+
+        foreach ($sessionList as $session) {
+            $newGameSession = new GameSessionDTO();
+
+            $roleI = rand(1, $rolesCount);
+            $roleV = '';
+            $counting = 0;
+            foreach ($roleList as $role => $count) {
+                $counting += $count;
+                if ($roleI <= $counting) {
+                    $roleV = $role;
+                    break;
                 }
             }
-            $roleList = $tempRoleList;
-            $tempRoleList = null;
+
+            $newGameSession->sessionId = $session->identifier;
+            $newGameSession->gameId = $gameId;
+            $newGameSession->nickname = $session->nickname;
+            $newGameSession->role = $roleV;
+            $newGameSession->roleAddInfos = SingletonRegistry::$registry['Role::'.$roleV]->getRoleAddInfos($session->identifier);
+            $newGameSession->points = 0;
+            $newGameSession->voted = false;
+
+            $rolesCount--;
+            $roleList[$roleV]--;
 
             $newGameSession = $this->create($newGameSession);
 

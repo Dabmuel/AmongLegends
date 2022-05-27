@@ -52,6 +52,8 @@ class PartyAdminAPIController extends Controller {
                             $this->error('WRONG_STATUS');
                         } else {
                             $this->startGame($currentPartyDTO);
+                            header("Location: ".Config::$baseUrl."/party");
+                            return;
                         }
                         break;
                     case("finishGame"):
@@ -128,23 +130,34 @@ class PartyAdminAPIController extends Controller {
 
     private function startGame(PartyDTO $currentPartyDTO) {
         $partySessions =$this->sessionService->getPartySessions($currentPartyDTO->identifier);
-
         if (count($partySessions) != 5) {
-            $this->error();
+            return;
         }
 
-        if (!$this->error) {
-            $currentGameDTO = $this->gameService->startNewGame($currentPartyDTO->identifier);
-            $currentPartyDTO->activeGameId = $currentGameDTO->identifier;
-            $this->partyService->update($currentPartyDTO);
+        $gametype = $_POST["gametype"];
+        if(!in_array($gametype, SingletonRegistry::$registry["GameType"]->gameTypeEnum)) {
+            return;
+        }
 
-            $roles = [];//Dans un nouveau array car on va le modifier et les array sont passé par ref.
-            foreach (SingletonRegistry::$registry["Roles"]->rolesEnum as $role) {
-                $roles[] = $role;
+        $roles = [];
+        $roleCount = 0;
+        $allExistingRoles = SingletonRegistry::$registry["Roles"]->rolesEnum;
+        foreach ($allExistingRoles as $existingRole) {
+            $number = $_POST[$existingRole];
+            if ($number != null && is_numeric($number) && $number > 0) {
+                $roleCount += $number;
+                $roles[$existingRole] = $number;
             }
-
-            $gameSessions = $this->gameSessionService->generateGameSessions($partySessions, $roles, $currentGameDTO->identifier);
         }
+        if($roleCount < 5) {
+            return;
+        }
+
+        $currentGameDTO = $this->gameService->startNewGame($currentPartyDTO->identifier, $gametype, $roles);
+        $currentPartyDTO->activeGameId = $currentGameDTO->identifier;
+        $this->partyService->update($currentPartyDTO);
+
+        $gameSessions = $this->gameSessionService->generateGameSessions($partySessions, $roles, $currentGameDTO->identifier);
     }
 
     private function finishGame(GameDTO $currentGameDTO) {
